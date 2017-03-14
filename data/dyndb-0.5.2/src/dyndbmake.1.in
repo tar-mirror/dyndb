@@ -1,0 +1,91 @@
+.TH dyndbmake 1 \*(VE \*(PA
+.hy 0
+.URL "Uwe Ohse" ../uwe.html
+.br
+.URL "The dyndb package" ../dyndb.html
+.paragraph
+.section NAME
+dyndbmake - create a dynamic database
+.br
+dyndbdump - dump a dynamic database
+.br
+dyndbfdump - faster dump of a dynamic database
+.section SYNOPSIS
+dyndbmake \fIdbfile\fR \fItmpfile\fR <input
+.br
+dyndbdump \fI[-n]\fR \fI<dbfile\fR
+.br
+dyndbfdump \fI[-n]\fR \fI<dbfile\fR
+
+.section Desciption
+
+.subsection dyndbmake
+
+\fBdyndbmake\fR creates a temporary database file \fItmpfile\fR, reads a
+series of encoded records from its standard input and appends them
+to \fItmpfile\fR. As soon as it runs out of input it will move \fItmpfile\fR
+to \fIdbfile\fR, deleting any former file in that place.
+.paragraph
+\fItmpfile\fR is destroyed if it already exists.
+.br
+\fBdyndbmake\fR makes sure that \fItmpfile\fR is safely written to disk 
+before it replaces \fIdbfile\fR in an atomical operation.
+The directories containing the files must be writable to dyndbmake.
+Both must also be on the same filesystem.
+.paragraph
+If the input is in a bad format or if dyndbmake has any trouble
+writing \fItmpfile\fR to disk, dyndbmake complains and leaves \fIdbfile\fR
+alone.
+
+.subsection dyndbdump
+\fBdyndbdump\fR reads a database from its standard input and prints
+the database contents, in the format described below, on standard output.
+If the \fI-n\fR option is used then no final newline will be written.
+.paragraph
+\fBdyndbdump\fR may be used while other processes add new information to
+\fIdbfile\fR. It may dump records more than once in that case.
+
+.subsection dyndbfdump
+\fBdyndbfdump\fR is like dyndbdump, but faster. It must not be used while
+other processes write to \fIdbfile\fR.
+
+.section "Record format"
+dyndbmake expects records in the following format:
+.paragraph
+  +\fBklen\fR,\fBdlen\fR:\fBkey\fR->\fBdata\fR
+.paragraph
+Note the "plus" character.
+.br
+\fBklen\fR is the length of the key, measured in bytes. \fBdlen\fR is the
+length of the data, again measured in bytes. \fBkey\fR is the key, and
+\fBdata\fR is the data. The end of the record is indicated by a
+newline character.
+.paragraph
+An extra newline character terminates the data.
+.paragraph
+.nf
+.HTML <pre>
+Example:
+
+  line1: +1,2:a->ab
+  line2: +3,4:abc->abcd
+  line3:
+.HTML </pre>
+.fi
+.paragraph
+dyndbmake allows for many records with the same key, but the reading
+functions need to support that (my ones only read on record from the
+database).
+.paragraph
+dyndbmake, dyndbdump and dyndbfdump do not preserve the order of records.
+.section Author
+Uwe Ohse, uwe@ohse.de
+.section "See also"
+.manlink dyndb_intro.html dyndb_intro(7) ,
+.manlink dyndbget.html dyndbget(1) .
+.HTML <!--
+.paragraph
+The homepage may be more up-to-date, see
+.br
+http://www.ohse.de/uwe/dyndb.html.
+.HTML -->

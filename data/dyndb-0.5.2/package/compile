@@ -1,0 +1,35 @@
+#! /bin/sh -e
+
+umask 022
+./package/packagecheck
+
+here=`env - PATH=$PATH pwd`
+
+mkdir -p compile 
+mkdir -p command
+mkdir -p doc
+test -r compile/home || echo $here > compile/home
+test -h compile/src || ln -s $here/src compile/src
+
+echo 'Linking ./src/* into ./compile...'
+for i in `ls src` ; do
+	test -h compile/$i || ln -s src/$i compile/$i
+done
+
+echo 'Compiling everything in ./compile...'
+( cd compile; exec make )
+
+echo 'Copying commands into ./command...'
+for i in `cat package/commands`  ; do
+	rm -f command/$i'{new}'
+	cp -p compile/$i command/$i'{new}'
+	mv -f command/$i'{new}' command/$i
+done
+
+echo 'Copying documentation into ./doc...'
+for i in `cat package/docs`  ; do
+	( cd compile && make "$i" )
+	rm -f doc/$i'{new}'
+	cp -p compile/$i doc/$i'{new}'
+	mv -f doc/$i'{new}' doc/$i
+done

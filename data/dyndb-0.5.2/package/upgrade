@@ -1,0 +1,51 @@
+#! /bin/sh -e
+
+umask 022
+./package/packagecheck
+
+if test "x$OLDPREFIX" = x ; then
+	OLDPREFIX=/usr/local
+fi
+
+here=`env - PATH=$PATH pwd`
+parent=`cd .. && env - PATH=$PATH pwd`
+version=`cat package/version`
+package=`cat package/package`
+class=`cat package/class`
+
+echo "Creating symlink $package -> $package-$version..."
+rm -f $package
+ln -s $package-$version $package
+mv -f $package ..
+
+echo 'Making command links in $PREFIX/command...'
+mkdir -p $PREFIX/command
+for i in `cat package/commands` ; do
+	rm -f $PREFIX/command/$i'{new}'
+	ln -s $parent/$package-$version/command/$i /command/$i'{new}'
+	mv -f $PREFIX/command/$i'{new}' /command/$i
+done
+
+echo 'Making compatibility links in $OLDPREFIX/bin...' 
+mkdir -p $OLDPREFIX/bin
+for i in `cat package/commands` ; do
+	rm -f $OLDPREFIX/bin/$i'{new}'
+	ln -s $PREFIX/command/$i $OLDPREFIX/bin/$i'{new}'
+	mv -f $OLDPREFIX/bin/$i'{new}' $OLDPREFIX/bin/$i
+done          
+
+echo 'Making documentation symlinks...'
+m=$OLDPREFIX/man
+mkdir -p $m
+p="$parent/$package"
+for i in `cat package/docs` ; do 
+  case "$i" in
+  *.[0-9n]*) 
+  	e=`echo "$i" | sed 's/^.*\.//'` 
+	mkdir -p "$m/man$e" 2>/dev/null
+	rm -f "$m/man$e/$i"'{new}'
+	ln -s "$p/doc/$i" "$m/man$e/$i"'{new}'
+	mv -f "$m/man$e/$i"'{new}' "$m/man$e/$i"
+	;;
+  esac
+done

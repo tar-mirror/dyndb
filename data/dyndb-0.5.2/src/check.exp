@@ -1,0 +1,120 @@
+--- basic program invocation checks: dyndbdel
+dyndbdel: need more arguments. Use the --help option for more information.
+usage: dyndbdel DYNDB KEY
+  This program deletes the record matching KEY from DYNDB
+  by making it inaccessible.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbdel: need more arguments. Use the --help option for more information.
+usage: dyndbdel DYNDB KEY
+  This program deletes the record matching KEY from DYNDB
+  by making it inaccessible.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbdel: fatal: failed to open t.123: file does not exist
+100
+dyndbdel: too many arguments. Use the --help option for more information.
+usage: dyndbdel DYNDB KEY
+  This program deletes the record matching KEY from DYNDB
+  by making it inaccessible.
+  Report bugs to dyndb@lists.ohse.de
+2
+--- basic program invocation checks: dyndbadd
+dyndbadd: need more arguments. Use the --help option for more information.
+usage: dyndbadd DYNDB KEY <VALUE
+  This program adds a record with KEY and VALUE to DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbadd: need more arguments. Use the --help option for more information.
+usage: dyndbadd DYNDB KEY <VALUE
+  This program adds a record with KEY and VALUE to DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbadd: fatal: failed to open t.123: file does not exist
+111
+dyndbadd: too many arguments. Use the --help option for more information.
+usage: dyndbadd DYNDB KEY <VALUE
+  This program adds a record with KEY and VALUE to DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+--- basic program invocation checks: dyndbget
+dyndbget: need more arguments. Use the --help option for more information.
+usage: dyndbget KEY <DYNDB
+  This program prints the first record in DYNDB with the key KEY.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbget: fatal: failed to find record. dyndb_seek: input/output error
+111
+dyndbget: too many arguments. Use the --help option for more information.
+usage: dyndbget KEY <DYNDB
+  This program prints the first record in DYNDB with the key KEY.
+  Report bugs to dyndb@lists.ohse.de
+2
+--- basic program invocation checks: dyndbtree
+dyndbtree: too many arguments. Use the --help option for more information.
+usage: dyndbtree <DYNDB
+  This program shows statistics about DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbtree: fatal: failed to read or lseek: input/output error
+111
+--- basic program invocation checks: dyndbstats
+dyndbstats: too many arguments. Use the --help option for more information.
+usage: dyndbstats <DYNDB
+  This program shows statistics about DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbstats: fatal: failed to read or lseek: input/output error
+111
+--- basic program invocation checks: dyndbdump
+dyndbdump: too many arguments. Use the --help option for more information.
+usage: dyndbdump [options] <DYNDB
+  This program dumps the content of DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbdump: fatal: failed to dump database. dyndb_walknext: input/output error
+111
+--- basic program invocation checks: dyndbfdump
+dyndbfdump: too many arguments. Use the --help option for more information.
+usage: dyndbfdump <DYNDB
+  This program dumps the content of DYNDB.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbfdump: fatal: failed to dump database. dyndb_fwalk: invalid argument
+--- basic program invocation checks: dyndbmake
+dyndbmake: need more arguments. Use the --help option for more information.
+usage: dyndbmake DYNDB [tmpfile] <input
+  This program creates DYNDB from input.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbmake: too many arguments. Use the --help option for more information.
+usage: dyndbmake DYNDB [tmpfile] <input
+  This program creates DYNDB from input.
+  Report bugs to dyndb@lists.ohse.de
+2
+dyndbmake: fatal: unexpected end of file
+100
+dyndbmake: fatal: failed to rename t.123 to doesnotexist-IHOPE/doesnotexist: file does not exist
+111
+dyndbmake: fatal: failed to create database. dyndb_create: file does not exist
+111
+--- make database and dump data
+--- add key and dump data
+--- retrieve added record
+--- add 100 records
+--- add all object files
+--- get all object files
+--- dump database and create new one
+--- add 100 duplicate keys
+--- delete 100 duplicate keys
+--- delete all object files
+--- delete 100 records
+--- compare with original content
+--- create db with duplicate keys
+--- delete one of them
+--- dump db
++4,4:1234->efgh
+
++4,4:1234->efgh
+
+efgh

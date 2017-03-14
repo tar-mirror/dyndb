@@ -1,0 +1,10 @@
+common.c: GPL, uo
+common.h: GPL, uo
+dyndbadd.c: GPL, uo
+dyndbdel.c: GPL, uo
+dyndbdump.c: GPL, uo
+dyndbfdump.c: GPL, uo
+dyndbget.c: GPL, uo
+dyndbmake.c: GPL, uo
+dyndbstats.c: GPL, uo
+dyndbtree.c: GPL, uo

@@ -1,0 +1,28 @@
+0.5.2 August 2001
+
+* fixed a bug in dyndb_fwalk (may try to access beyond the bounds 
+  of an mmap()ed area).
+
+0.5.1 August 2001
+
+* fixed a number of build/installation problems.
+* fixed a lon-standing non-fatal issue with mmap() on linux.
+
+0.5.0 August 2001 (not released)
+
+* switched to new packaging system
+* cleaned up API to handle multiple records with the same key
+  (the tools do not support this now).
+* rewrote library documentation.
+
+0.3.2 unreleased 2001
+
+* changed a number of error messages.
+* dyndbmake checks input data format more strictly.
+
+0.3.1 August 2000
+
+* dyndbdump and dyndbfdump understand a -n option to supress the final
+  newline.
+* fixed installation problems.
+

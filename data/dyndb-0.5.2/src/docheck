@@ -1,0 +1,115 @@
+#! /bin/sh
+rm -f t.db t.in t1.db t.out t.out1 t.out2 t.cmp t.123
+
+cat /etc/group  /etc/passwd \
+	2>/dev/null | \
+	awk -v FS=':' '{x=substr($0,length($1)+2); 
+print "+"length($1)","length(x)":"$1"->"x}' >t.in
+echo >>t.in
+sort t.in >t.cmp
+echo "--- basic program invocation checks: dyndbdel"
+./dyndbdel ; echo $?
+./dyndbdel t.123  ; echo $?
+./dyndbdel t.123 45 ; echo $?
+./dyndbdel t.123 45 67 ; echo $?
+echo "--- basic program invocation checks: dyndbadd"
+./dyndbadd ; echo $?
+./dyndbadd t.123  ; echo $?
+./dyndbadd t.123 45 </dev/null; echo $?
+./dyndbadd t.123 45 67 ; echo $?
+echo "--- basic program invocation checks: dyndbget"
+./dyndbget ; echo $?
+./dyndbget t.123  </dev/null ; echo $?
+./dyndbget t.123 45 ; echo $?
+echo "--- basic program invocation checks: dyndbtree"
+./dyndbtree t.123 ; echo $?
+./dyndbtree </dev/null ; echo $?
+echo "--- basic program invocation checks: dyndbstats"
+./dyndbstats t.123 ; echo $?
+./dyndbstats </dev/null ; echo $?
+echo "--- basic program invocation checks: dyndbdump"
+./dyndbdump t.123 ; echo $?
+./dyndbdump </dev/null ; echo $?
+echo "--- basic program invocation checks: dyndbfdump"
+./dyndbfdump t.123 ; echo $?
+./dyndbfdump </dev/null 2>&1 | sed 's/device does.*/invalid argument/'
+echo "--- basic program invocation checks: dyndbmake"
+# dyndbmake DB [TMP] <input
+./dyndbmake </dev/null ; echo $?
+./dyndbmake t.123 t.123 toomuch </dev/null ; echo $?
+./dyndbmake doesnotexist-IHOPE/doesnotexist t.123 </dev/null ; echo $?
+./dyndbmake doesnotexist-IHOPE/doesnotexist t.123 <t.in ; echo $?
+./dyndbmake t.123 doesnotexist-IHOPE/doesnotexist </dev/null ; echo $?
+
+echo "--- make database and dump data"
+./dyndbmake t.db <t.in || exit 1
+./dyndbdump <t.db |sort >t.out1
+cmp t.out1 t.cmp || exit 1
+echo "--- add key and dump data"
+echo data | ./dyndbadd t.db "^key" || exit 1
+./dyndbdump <t.db |sort >t.out1
+(echo ; echo "+4,5:^key->data" ; cat t.in) |sort >t.out2
+cmp t.out1 t.out2 || exit 1
+echo "--- retrieve added record"
+echo "data" >t.out1
+echo `./dyndbget <t.db "^key" ` >t.out2
+cmp t.out1 t.out2 || exit 1
+echo "--- add 100 records"
+for i in 0 1 2 3 4 5 6 7 8 9 ; do
+  for j in 0 1 2 3 4 5 6 7 8 9 ; do
+  	cat t.in | ./dyndbadd t.db "^$i$j" || exit 1
+  done
+done
+echo "--- add all object files"
+for i in *.o ; do
+	./dyndbadd t.db $i <$i || exit 1
+done
+echo "--- get all object files"
+for i in *.o ; do
+	./dyndbget $i <t.db >t.out
+	cmp $i t.out || exit 1
+done
+echo "--- dump database and create new one"
+./dyndbdump <t.db | ./dyndbmake t1.db || exit 1
+echo "--- add 100 duplicate keys"
+for i in 0 1 2 3 4 5 6 7 8 9 ; do
+  for j in 0 1 2 3 4 5 6 7 8 9 ; do
+  	cat t.in | ./dyndbadd t.db testkey || exit 1
+  done
+done
+echo "--- delete 100 duplicate keys"
+for i in 0 1 2 3 4 5 6 7 8 9 ; do
+  for j in 0 1 2 3 4 5 6 7 8 9 ; do
+  	./dyndbdel t.db testkey || exit 1
+  done
+done
+./dyndbget testkey <t.db >t.out && echo "found deleted key" && exit 1
+echo "--- delete all object files"
+for i in *.o ; do
+	./dyndbdel t.db $i || exit 1
+done
+echo "--- delete 100 records"
+for i in 0 1 2 3 4 5 6 7 8 9 ; do
+  for j in 0 1 2 3 4 5 6 7 8 9 ; do
+  	./dyndbdel t.db "^$i$j" || exit 1
+  done
+done
+./dyndbdel t.db "^key" || exit 1
+echo "--- compare with original content"
+./dyndbfdump <t.db |sort >t.out1
+cmp t.out1 t.cmp || exit 1
+rm -f t.db t.in t1.db t.out t.out1 t.out2 t.cmp t.123
+echo "--- create db with duplicate keys"
+(
+./dyndbmake t.db <<EOF
++4,4:1234->abcd
++4,4:1234->efgh
+
+EOF
+) || exit 1
+echo "--- delete one of them"
+./dyndbdel t.db "1234" || exit 1
+echo "--- dump db"
+./dyndbdump <t.db || exit 1
+./dyndbfdump <t.db || exit 1
+./dyndbget 1234 <t.db || exit 1 ; echo

@@ -1,0 +1,46 @@
+2001-08-21 <uwe@fjoras.ohse.de>
+
+version:  0.5.2
+bugfix:   dyndb_fwalk might crash due to access beyond the bounds
+          of an mmap()ed area. No security impact. Workaround: use
+		  dyndb_walk().
+
+2001-08-13 <uwe@fjoras.ohse.de>
+
+version:  0.5.1
+internal: fixed a number of installation / build problems.
+internal: proofread the library, fixed a number of minor issues.
+internal: dyndb_fwalk failed on linux due to mmap implementation
+          differences (linux wants a strict alignment). Old bug,
+		  didn't surface in older version since older versions
+		  did a fallback to dyndb_walk if mmap failed.
+
+2001-08-08 <uwe@fjoras.ohse.de>
+
+ui:       switched to new packaging system.
+
+2001-08-03 <uwe@fjoras.ohse.de>
+
+ui:       changed to programmers API.
+internal: rewrote much of it.
+version:  0.5.0
+
+2001-04-23 <uwe@fjoras.ohse.de>
+
+ui:       prefix fatal messages with "fatal: "
+ui:       changed a number of error messages.
+ui:       dyndbmake checks input more strictly.
+check:    added more checks.
+internal: switched to use bailout_progname instead of mkprogname.
+internal: switched to UOGO_MINARGS/MAXARGS.
+internal: updated a number of library files.
+internal: switched from str_ulong to fmt_ulong.
+version:  0.3.2
+
+2000-08-21 <uwe@serak.ohse.de>
+
+bugfix:   distribute install.list.
+internal: update uoinstall.c, env_get.c, bailout.c from repository.
+ui:      new option for dyndbdump and dyndbfdump: -n option, "no final
+         empty new line".
+version: 0.3.1

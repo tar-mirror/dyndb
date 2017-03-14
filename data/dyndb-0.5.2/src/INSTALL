@@ -1,0 +1,112 @@
+dyndbinstall(8)					  dyndbinstall(8)
+
+
+
+How to install dyndb
+       This document describes how to download, compile, test and
+       install dyndb.
+
+
+   System requirements:
+       The  dyndb  package  is	meant  to  run	under  UNIX   and
+       -lookalikes.
+
+
+
+   Create a /package directory:
+	 $ mkdir /package
+	 $ chmod 1755 /package
+	 $ cd /package
+       You  may	 use  another  directory. No program in the dyndb
+       package	cares  where  it  is   installed.   /package   is
+       recommended.
+
+       The latest published dyndb package is:
+
+       http://www.ohse.de/uwe/dyndb/dyndb-0.5.1.tar.gz
+
+       You can alternatively download it through FTP:
+
+       ftp://www.ohse.de/uwe/dyndb/dyndb-0.5.1.tar.gz
+
+
+
+   Unpack the package:
+	 $ gunzip dyndb-0.5.1.tar.gz
+	 $ tar -xpf dyndb-0.5.1.tar # note the 'p'
+	 $ rm dyndb-0.5.1.tar
+	 $ cd data/dyndb-0.5.1
+
+
+   Compile and install the programs:
+	 $ package/install
+
+
+   Where commands and documentation are installed:
+       By    default	the    binaries	   are	  installed    in
+       /package/dyndb-0.5.1/commmand.  (replace /package/ by  the
+       directory  where	 you  you unpacked the dyndb distribution
+       in).  Symbolic  links  to  the  commands	 are  created  in
+       /command/    and,    for	   compatibility    reasons,   in
+       /usr/local/bin.
+       Manual pages are	 installed  in	/package/dyndb-0.5.1/doc.
+       Symbolic	 links	to  the	 manual	 pages	are created under
+       /usr/local/man.
+
+       If you don't like this then:
+	 $ package/compile && package/check
+	 $ cp command/* /whereever/you/want/bin
+	 $ cp doc/* /whereever/you/want/doc
+
+
+
+   Self check:
+       compile/install	(or  compile/check)  try  to   run   some
+       automated tests. If these tests fail the software will not
+       be installed.
+
+       The tests take some time. Things are fine if they  do  not
+       print anything.
+
+
+   How to report success: (not mandatory)
+	 $ mail uwe-generic-counter@ohse.de <compile/systype
+
+       Please  do  not	send this email if the self-check failed.
+       Send an problem report to the mailing list instead.
+
+
+
+   Cleaning up:
+       If you are short on disk space you may remove the  compile
+       and src directories:
+	 $ rm -rf compile src
+
+
+
+   Mailing list:
+       To  subscribe  to  the  dyndb  mailing list send a mail to
+       dyndb-subscribe@lists.ohse.de. The content is ignored.
+
+       You do not need to subscribe to the mailing list, it is an
+       open  one.   But,  if you are not subscribe, make sure you
+       mention this in the mail.
+
+       Please include the dyndb	 version  number,  the	operating
+       system  and  it's version and any possible relevant output
+       of the failing program.	Please include compile/systype in
+       your posting.
+
+       If your system is a GNU/Linux one then please include name
+       and version  of	your  distribution  and	 your  C  library
+       version number (as printed by ldd --version).
+
+
+
+SEE ALSO
+       The homepage may be more up-to-date, see
+       http://www.ohse.de/uwe/dyndb.html.
+
+
+
+dyndb			      0.5.1		  dyndbinstall(8)

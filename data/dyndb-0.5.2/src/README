@@ -1,0 +1,77 @@
+dyndb is a database library allowing for multiple readers and a single 
+writer at any time. The functions are quite fast for up to about 70000 
+records. Performance is likely to degrade after that point. See 
+    http://www.ohse.de/uwe/software/dyndb/dyndb.html 
+for more information.
+
+dyndb comes with NO warranty.
+
+
+How to compile the library and tools:
+
+  $ make
+
+  You might want to change the compiler settings:
+
+  $ make CC=lcc CFLAGS=-O LDFLAGS=-g
+
+  By default gcc is assumed.
+
+
+How to test:
+
+  $ make check
+
+
+How to report success: (not mandatory)
+
+  $ make REALNAME="My Name" systype 
+  $ make REALNAME="My Name" systype  |mail uwe-generic-counter@ohse.de
+  do not send any email unless "make check" was successful, please.
+
+
+How to install the tools:
+
+  "make install" installs them into /usr/local/bin, and makes "root" the
+  owner of all files.
+
+  If you want to change this location to /home/me/bin use:
+    "make nochown=true prefix=/home/me install"
+
+
+How to use the database library:
+
+  Simply copy the files you need to whereever you need them and
+  include them into your Makefile. You may want to copy some or
+  all of:
+    dyndb_seek.c dyndb_hash.c dyndb_read.c dyndb_fdisk.c dyndb_walk.c 
+	dyndb_create.c dyndb_write.c dyndb_enter.c dyndb_tdisk.c
+  and dyndb.h.
+
+  The functions need a 32bit unsigned integer type. For some reason that
+  type is called uo_uint32_t (uint32 collides with some libraries, uint32_t
+  also). The easiest way to adapt the functions to your environment is
+  to provide your own "typesize.h". 
+
+  Some functions also need "ssize_t". You need to get a definition of 
+  that type (which all modern systems provide in <sys/types.h>) before
+  you include "dyndb.h").
+
+  GNU autoconf may be helpful to you (but is not needed).
+
+
+Copyright:
+
+* the library sources:
+    dyndb_seek.c dyndb_hash.c dyndb_read.c dyndb_fdisk.c dyndb_walk.c 
+    dyndb_create.c dyndb_write.c dyndb_enter.c dyndb_tdisk.c dyndb.h
+  are hereby placed in the public domain.
+  You are encouraged to place your derived work under the GPL, 
+  the LGPL or another Open Source License (although i prefer the GPL).
+  You are also encouraged to keep the library files in the public
+  domain.
+
+* the tool sources (any other source found in the distribution not
+  explicitly mentioned above) are placed under the GNU GENERAL PUBLIC 
+  LICENSE, _unless_ they have a copyright notice telling something
+  different.

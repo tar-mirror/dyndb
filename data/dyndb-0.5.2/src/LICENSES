@@ -1,0 +1,129 @@
+This package is published under the GNU General Public License, Version 2.
+
+Some files in this package are published under a different license. See
+below for a list. A files license has a higher precedence than the
+package license. Any conflict arising from the different licenses are
+to be resolved on that base.
+
+
+GPL:           The GNU General Public License. In short:
+    * Redistribution allowed
+    * Modifications allowed, subject to Rule #2 in the GPL
+      (prominent notes in the changed files).
+	* Distribution of binaries allowed, as long as the source is
+	  made available.
+
+public domain: 
+	* No copyright claimed by anybody. Use as you please.
+
+Copyright djb: The copyright used by Daniel J. Bernstein - djb@pobox.com.
+	* Redistribution of unmodified files allowed.
+	* Distribution of patches allowed.
+	If you really need to modify one of those files: Ask djb or 
+	distribute a patch - you might want to alter the Makefile to
+	generate file "file.c":
+		file.c: file.c.djb file.c.patch
+			patch <file.c.patch
+	Note the renaming isn't a modification of the file, but a
+	modification of the package.
+
+----------------------------------------------------------------------------
+_str.h: GPL, uo
+alloc.c: public domain, uo
+alloc.h: public domain, uo
+alloc_re.c: public domain, uo
+attributes.h: public domain, uo
+bailout.c: GPL, uo
+bailout.h: GPL, uo
+bailout_name.c: GPL, uo
+buffer.c: public domain reimplementation of DJBs buffer library by uo
+buffer.h: public domain reimplementation of DJBs buffer library by uo
+buffer_0.c: public domain reimplementation of DJBs buffer library by uo
+buffer_1.c: public domain reimplementation of DJBs buffer library by uo
+buffer_2.c: public domain reimplementation of DJBs buffer library by uo
+buffer_get.c: public domain reimplementation of DJBs buffer library by uo
+buffer_put.c: public domain reimplementation of DJBs buffer library by uo
+byte.h: public domain reimplementation of DJBs byte library by uo
+byte_chr.c: public domain reimplementation of DJBs byte library by uo
+byte_copy.c: public domain reimplementation of DJBs byte library by uo
+byte_cr.c: public domain reimplementation of DJBs byte library by uo
+case.h: GPL, uo
+dyndb.h: LGPL, uo
+dyndb_create.c: LGPL, uo
+dyndb_delete.c: LGPL, uo
+dyndb_enter.c: LGPL, uo
+dyndb_fdisk.c: LGPL, uo
+dyndb_fwalk.c: LGPL, uo
+dyndb_hash.c: LGPL, uo
+dyndb_init.c: LGPL, uo
+dyndb_look.c: LGPL, uo
+dyndb_read.c: LGPL, uo
+dyndb_seek.c: LGPL, uo
+dyndb_tdisk.c: LGPL, uo
+dyndb_walk.c: LGPL, uo
+dyndb_write.c: LGPL, uo
+dyndbadd.c: GPL, uo
+dyndbdel.c: GPL, uo
+dyndbdump.c: GPL, uo
+dyndbfdump.c: GPL, uo
+dyndbget.c: GPL, uo
+dyndbmake.c: GPL, uo
+dyndbstats.c: GPL, uo
+dyndbtree.c: GPL, uo
+env.h: GPL, uo
+env_get.c: GPL, uo
+error.c: public domain reimplementation of DJBs error library by uo.
+error.h: public domain reimplementation of DJBs error library by uo.
+error_str.c: public domain reimplementation of DJBs error library by uo.
+fmt.h: public domain reimplementation of DJBs fmt library by uo.
+fmt_ulong.c: public domain reimplementation of DJBs fmt library by uo.
+fmt_xlong.c: public domain reimplementation of DJBs fmt library by uo.
+fsync.c: GPL, uo
+gen_alloc.h: public domain, uo
+gen_alloc_ady.c: public domain, uo
+gen_alloc_end.c: public domain, uo
+gen_alloc_lus.c: public domain, uo
+gen_alloci.h: public domain, uo
+gen_alloci.h: public domain, uo
+gen_fmt.h: public domain, uo
+gen_scan.h: public domain, uo
+getln.c: public domain reimplementation of DJBs getln library by uo
+getln.h: public domain reimplementation of DJBs getln library by uo
+int32.h: public domain
+open.h: GPL, uo
+open_rdwr.c: GPL, uo
+open_read.c: GPL, uo
+open_readwri.c: GPL, uo
+open_trunc.c: GPL, uo
+readwrite.h: public domain reimplementation of DJBs readwrite.h by uo.
+scan.h: public domain reimplementation of DJBs scan library by uo
+scan_long.c: public domain reimplementation of DJBs scan library by uo
+scan_sign.c: public domain reimplementation of DJBs scan library by uo
+scan_ulong.c: public domain reimplementation of DJBs scan library by uo
+seek.h: GPL, uo
+str.h: GPL, uo
+str2num.h: GPL, uo
+str2ulong.c: GPL, uo
+str_chr.c: GPL, uo
+str_diff.c: GPL, uo
+str_len.c: GPL, uo
+str_rchr.c: GPL, uo
+str_ulong.c: GPL, uo
+str_ulong.h: GPL, uo
+stralloc.h: public domain, uo
+stralloc_catb.c: public domain, uo
+stralloc_cats.c: public domain, uo
+stralloc_copy.c: public domain, uo
+stralloc_eady.c: public domain, uo
+stralloc_free.c: public domain, uo (for completeness)
+stralloc_opyb.c: public domain, uo
+stralloc_opys.c: public domain, uo
+stralloc_pend.c: public domain, uo
+stralloc_plus.c: public domain, uo
+timing.c: GPL, uo
+timing.h: GPL, uo
+typesize.h: GPL, uo
+typesize2.h: automatically generated
+uint32.h: public domain reimplementation of DJBs uint library by uo
+uogetopt.c: LGPL, uo
+uogetopt.h: LGPL, uo

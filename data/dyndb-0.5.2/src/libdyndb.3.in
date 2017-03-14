@@ -1,0 +1,568 @@
+.TH libdyndb 3 \*(VE \*(PA
+.hy 0
+.URL "Uwe Ohse" ../uwe.html
+.br
+.URL "The dyndb package" ../dyndb.html
+.paragraph
+.SH NAME
+dyndb - a database library for multiple readers and one writer
+.LINE
+.SH "DESCRIPTION"
+A \fIdyndb\fR is a simple one-writer/multiple-reader disk
+based data structure. This library offers a low-level interface to it.
+.paragraph
+Multiple processes may use the same database, provided that they are
+carefully using some kind of locking.
+.paragraph
+See 
+.intlink limitations
+for a list of limitations.
+.paragraph
+
+.section Overview
+.intlink dyndb_create_name
+or 
+.intlink dyndb_create_fd
+create a database. 
+.br
+.intlink dyndb_init
+initializes the management information on an existing database.
+.br
+.intlink dyndb_enter ,
+.intlink dyndb_enterstart ,
+.intlink dyndb_enteraddkey ,
+.intlink dyndb_enteradddata
+and
+.intlink dyndb_enterfinish 
+enter new information.
+.br
+.intlink dyndb_lookup
+respectively
+.intlink dyndb_lookupstart
+and
+.intlink dyndb_lookupnext 
+allow to search for information by a key.
+.br
+.intlink dyndb_walkstart
+and
+.intlink dyndb_walknext
+allows to walk through all records of the database. 
+.intlink dyndb_fwalk 
+provides an alternative interface.
+.br
+.intlink dyndb_delete 
+deletes the record found by the latest call to dyndb_lookupnext.
+
+.section "Data Types"
+.TAG dyndb_type
+.subsection "The dyndb data structure"
+This structure describes the internal state of the library.
+Please treat it as opaque data type. Exception: you may access the
+\fIfd\fR member _readonly_.
+.subsection "uint32"
+is a 32bit unsigned integer. On many systems you can use
+.paragraph
+.nf
+.HTML <pre>
+  #include <inttypes.h>
+  #define uint32 uint32_t
+.HTML </pre>
+.fi
+.paragraph
+to get a definition. Do not use \fIunsigned int\fR or \fIunsigned long\fR,
+unless you do not need portability of your source.
+.subsection "int32"
+is a 32bit signed integer. On many systems you can use
+.paragraph
+.nf
+.HTML <pre>
+  #include <inttypes.h>
+  #define int32 int32_t
+.HTML </pre>
+.fi
+.paragraph
+to get a definition. Do not use \fIint\fR or \fIlong\fR,
+unless you do not need portability of your source.
+.LINE
+.section "Integration"
+To use the library in your program you have to include \fIdyndb.h\fR
+inside your C sources (C++ is not supported, it may or may not work),
+and link a few functions to your binaries. The source files names of
+the library functions match \fIdyndb_*.c\fR (a wild card, not a 
+regular expression).
+.paragraph
+\fBdyndb.h\fR includes \fBuint32.h\fR and \fBint32.h\fR, which are 
+expected to define uint32 and int32. The two files included in the
+distribution, which you might want to replace if they don't fit
+into your framework, work this way:
+.br
+They include \fBtypesize.h\fR, which in turn includes \fBtypesize2.h\fR, 
+a file created at compile time, if if \fI`HAVE_CONFIG_H'\fR is not 
+defined. Otherwise,
+if \fI`HAVE_CONFIG_H'\fR is defined, you have either define a few
+constants or include \fBconfig.h\fR before you include \fBdyndb.h\fR.
+.paragraph
+Back when i used GNU autoconf I used the following magic:
+.paragraph
+.nf
+.HTML <pre>
+  AC_CHECK_SIZEOF(unsigned short,2)
+  AC_CHECK_SIZEOF(short,2)
+  AC_CHECK_SIZEOF(int,4)
+  AC_CHECK_SIZEOF(unsigned int,4)
+  AC_CHECK_SIZEOF(long,4)
+  AC_CHECK_SIZEOF(unsigned long,4)
+  AC_CHECK_SIZEOF(long long,0)
+  AC_CHECK_SIZEOF(unsigned long long,0)
+.HTML </pre>
+.fi
+.paragraph
+If \fI`HAVE_CONFIG_H'\fR is not defined then \fBtypesize2.h\fR has to 
+define the following C macros, possibly to other values:
+.paragraph
+.nf
+.HTML <pre>
+  #define SIZEOF_SHORT 2
+  #define SIZEOF_UNSIGNED_SHORT 2
+  #define SIZEOF_INT 4
+  #define SIZEOF_UNSIGNED_INT 4
+  #define SIZEOF_LONG 4
+  #define SIZEOF_UNSIGNED_LONG 4
+  #define SIZEOF_LONG_LONG 8
+  #define SIZEOF_UNSIGNED_LONG_LONG 8
+.HTML </pre>
+.fi
+
+.section Functions
+.TAG dyndb_create_fd
+.subsection dyndb_create_fd
+.func int dyndb_create_fd "(struct dyndb *, int fd);"
+.endfunc
+This function creates a database on file descriptor \fIfd\fR.
+\fIfd\fR should be a file of zero bytes length.
+.br
+This function returns -1 in case or error or \fIfd\fR otherwise.
+
+.TAG dyndb_create_name
+.subsection dyndb_create_name
+.func int dyndb_create_name "(struct dyndb *, const char *fname, int mode);"
+.endfunc
+\fBdyndb_create_name\fR creates a dyndb database at the place \fIfname\fR.
+Any existing file \fIfname\fR will be overwritten. \fImode\fR describes
+the access rights of the file.
+.br
+This function returns -1 in case or error or \fIfd\fR otherwise.
+
+.TAG dyndb_datalen
+.subsection dyndb_datalen
+.func uint dyndb_datalen "(struct dyndb *);"
+.endfunc
+This macro returns the length of the data found by the last call
+to 
+.intlink dyndb_lookupnext
+or
+.intlink dyndb_walknext .
+It's results are undefined if no data was found.
+
+.TAG dyndb_datapos
+.subsection dyndb_datapos
+.func uint32 dyndb_datapos "(struct dyndb *);"
+.endfunc
+This macro returns the positions of the data found by the last call
+to 
+.intlink dyndb_lookupnext
+or
+.intlink dyndb_walknext .
+It's results are undefined if no data was found.
+
+.TAG dyndb_delete
+.subsection dyndb_delete
+.func int dyndb_delete "(struct dyndb *dy);"
+.endfunc
+\fBdyndb_delete\fR deletes the record found by the latest call to
+.intlink dyndb_lookupnext .
+It returns -1 in case of error and 0 if successful.
+.br 
+You must only call \fBdyndb_delete\fR if the call to \fBdyndb_lookupnext\fR
+was successful.
+
+.TAG dyndb_enter
+.subsection dyndb_enter
+.func int dyndb_enter "(struct dyndb *dy,"
+.args "const char *key, uint32 keylen,"
+.args "const char *data, uint32 datalen);"
+.endfunc
+This function enters a record into the database \fIdy\fR. It is 
+implemented by calls to 
+.intlink dyndb_enterstart ,
+.intlink dyndb_enteraddkey ,
+.intlink dyndb_enteradddata 
+and
+.intlink dyndb_enterfinish.
+.paragraph
+You have to ensure that no other process enters data into \fBdy\fR 
+during the call to \fBdyndb_enter\fR.
+
+.TAG dyndb_enterstart
+.subsection dyndb_enterstart
+.func int dyndb_enterstart "(struct dyndb *dy)"
+.endfunc
+\fBdyndb_enterstart\fR prepares \fIdy\fR for a new record.
+It returns -1 in case of error and 0 otherwise.
+.paragraph
+You have to ensure that no other process enters data into \fBdy\fR 
+between the calling of \fBdyndb_enterstart\fR and the
+end of the \fBdyndb_enterfinish\fR call.
+
+.TAG dyndb_enteraddkey
+.subsection dyndb_enteraddkey
+.func int dyndb_enteraddkey "(struct dyndb *dy,"
+.args "const char *key,uint32 keylen);"
+.endfunc
+\fBdyndb_enteraddkey\fR adds \fIkey\fR, which may be part of
+a key (that means you may split key between multiple calls to
+\fBdyndb_enteraddkey\fR) into \fIdy\fR.
+It returns -1 in case of error and 0 otherwise.
+.paragraph
+You must call \fBdyndb_enteraddkey\fR only after a successful call to
+\fBdyndb_enterstart\fR. You must follow \fBdyndb_enteraddkey\fR with
+either one or more calls to \fBdyndb_enteradddata\fR or a call to
+\fBdyndb_enterfinish\fR.
+
+.TAG dyndb_enteradddata
+.subsection dyndb_enteradddata
+.func int dyndb_enteradddata "(struct dyndb *dy,"
+.args "const char *data,uint32 datalen);"
+.endfunc
+\fBdyndb_enteradddata\fR adds \fIdata\fR of \fIdatalen\fR bytes
+to the record being added info \fIdy\fR.
+It returns -1 in case of error and 0 otherwise.
+.paragraph
+You must call \fBdyndb_enteradddata\fR only after the key has been
+entered. You may call\fBdyndb_enteradddata\fR multiple times. You
+must call \fBdyndb_enterfinish\fR to actually add the record to
+the database index.
+
+.TAG dyndb_enterfinish
+.subsection dyndb_enterfinish
+.func int dyndb_enterfinish "(struct dyndb *dy);"
+.endfunc
+\fBdyndb_enterfinish\fR adds the record created by calls to
+\fBdyndb_enterstart\fR, \fBdyndb_enteraddkey\fR and 
+\fBdyndb_enteradddata\fR to the index structures of \fIdy\fR.
+It returns -1 in case of erorr and 0 otherwise.
+
+.TAG dyndb_fromdisk
+.subsection dyndb_fromdisk
+.func uint32 dyndb_fromdisk "(unsigned char buf[4]);"
+.endfunc
+\fBdyndb_fromdisk\fR converts 4 bytes of the little endian character 
+array \fIbuf\fR into an unsigned 32 bit integer.
+
+.TAG dyndb_fwalk
+.subsection dyndb_fwalk
+.func int dyndb_fwalk "(struct dyndb *dy,"
+.args "int (*callback)(uint32 pos, void *key, uint32 keylen,"
+.args "void *data, uint32 datalen));"
+.endfunc
+\fBdyndb_fwalk\fR provides one way to read all elements of a table.
+It calls a callback function \fBcallback\fR.
+If \fBcallback\fR returns a value other than 0 then dyndb_fwalk stops
+the search (you should use \-1 to signal an error, since that is
+what \fBdyndb_fwalk\fR will return in that case).
+.paragraph
+\fBdyndb_fwalk\fR will return 0 if \fBcallback\fR has been called for
+all elements of the database, \-1 in case of an error, and any possible
+integer value \fBcallback\fR returned.
+.paragraph
+\fBdyndb_fwalk\fR finds every record in the database at least once. It 
+finds every record exactly once if noone else is writing to the
+database at that moment, and may find records more than once if
+a table split happens during the walk through the table.
+.paragraph
+An alternative way to read all elements is the 
+.intlink dyndb_walk
+interface. The main difference between the two is that \fBdyndb_walk\fR
+is slower, has a more clean API and is likely to provide more useful
+results in case another process writes to the database during 
+the walk, while \fBdyndb_fwalk\fR is faster.
+
+.TAG dyndb_hash
+.subsection dyndb_hash
+.func int dyndb_hash "(const unsigned char *buf, uint32 len);"
+.endfunc
+Low level function, not to be used outside the library.  Implemented
+in terms of 
+.intlink dyndb_hashstart
+and
+.intlink dyndb_hashadd .
+
+.TAG dyndb_hashstart
+.subsection dyndb_hashstart
+.func int dyndb_hashstart "(void)"
+.endfunc
+Low level function, not to be used outside the library. Returns the
+hash seed.
+
+.TAG dyndb_hashadd
+.subsection dyndb_hashadd
+.func int dyndb_hashadd "(uint32 h, const unsigned char *buf,uint32 len);"
+.endfunc
+Low level function, not to be used outside the library. Adds \fIlen\fR
+bytes starting at \fIbuf\fR to the hash \fIh\fR and returns the hash
+value.
+
+.TAG dyndb_keylen
+.subsection dyndb_keylen
+.func uint dyndb_keylen "(struct dyndb *);"
+.endfunc
+This macro returns the length of the key found by the last call
+to 
+.intlink dyndb_walknext .
+It's results are undefined if no record was found.
+
+.TAG dyndb_keypos
+.subsection dyndb_keypos
+.func uint32 dyndb_keypos "(struct dyndb *);"
+.endfunc
+This macro returns the positions of the key found by the last call
+to 
+.intlink dyndb_lookupnext
+or
+.intlink dyndb_walknext .
+It's results are undefined if no record was found.
+
+.TAG dyndb_init
+.subsection dyndb_init
+.func int dyndb_init "(struct dyndb *db, int fd);"
+.endfunc
+\fBdyndb_init\fR initializes the \fIdb\fR structure for operations
+on from \fIfd\fR. \fIfd\fR has to be a valid file descriptor, opened
+for access matching whatever you want to do with it.
+.paragraph
+\fBdyndb_init\fR returns 0 in case of success or -1 in case of error.
+.paragraph
+\fBdyndb_init\fR does not lock \fIdb\fR. If this is needed then the 
+application has to do this before the call to \fBdyndb_init\fR.
+.paragraph
+You may call \fBdyndb_init\fR on the same \fIdy\fR more than once.
+You have to close \fIfd\fR yourself. 
+
+.TAG dyndb_lookupstart
+.subsection dyndb_lookupstart
+.func void dyndb_lookupstart "(struct dyndb *dy);"
+.endfunc
+\fBdyndb_lookupstart\fR prepares \fIdy\fR for a new search. All
+information about the search is kept in memory.
+
+.TAG dyndb_lookupnext
+.subsection dyndb_lookupnext
+.func int dyndb_lookupnext "(struct dyndb *dy,"
+.args "const char *key, uint32 keylen);"
+.endfunc
+\fBdyndb_lookupnext\fR searches, starting from the last lookup
+position (as set by 
+.intlink dyndb_lookupstart 
+or dyndb_lookupnext), a \fIkey\fR of \fIkeylen\fR in the database
+\fIdy\fR. It returns 1 if \fIkey\fR has been found, 0 if \fIkey\fR 
+has not been found, and \-1 in case of an error.
+.paragraph
+The data is .intlink dyndb_datalen(dy)
+bytes long. It may be read with 
+.intlink dyndb_read
+either directly after the \fBdyndb_lookupnext\fR call or later
+after the file descriptor has been moved to the position returned by
+.intlink dyndb_datapos(dy) , 
+using the
+.intlink dyndb_seek 
+function.
+.paragraph
+This example retrieves all records with a given key from the DB on the
+standard input and prints them, separated by a space, to the standard output:
+.paragraph
+.nf
+.HTML <pre>
+    #include "dyndb.h"
+    void error(void) { _exit(1); }
+    int main(int argc, char **argv) 
+    {
+       struct dyndb dy;
+       if (argc<2) error();
+       if (-1==dyndb_init(&dy,0)) error();
+       dyndb_lookupstart(&dy);
+       while (1) {
+          int r;
+          int32 l;
+          r=dyndb_lookupnext(&dy,argv[1],strlen(argv[1]));
+          if (-1==r)
+             error();
+          if (!r) 
+             break; /* no further records */
+          /* read and print data */
+          for (l=dyndb_datalen(&dy); l ; ) {
+             char buf[128];
+             int32 got;
+             got=dyndb_read(dy.fd,buf, l > sizeof(buf) ? sizeof(buf) : l);
+             if (-1==got) error();
+             write(1,buf,got);
+             l-=got;
+          }
+          write(1,"\n",1);
+       }
+       return 0;
+    }
+.HTML </pre>
+.fi
+
+.TAG dyndb_lookup
+.subsection dyndb_lookup
+.func int dyndb_lookup"(struct dyndb *dy,"
+.args "const char *key, uint32 keylen);"
+.endfunc
+This is implemented as a call to dyndb_lookupstart and a call
+to dyndb_lookupnext.
+
+.TAG dyndb_read
+.subsection dyndb_read
+.func int32 dyndb_read "(int fd,char *buf,uint32 len);"
+.endfunc
+This functions copies \fIlen\fR bytes from file descriptor
+\fIfd\fR to \fIbuf\fR. It returns -1 in case of error or
+\fIlen\fR otherwise. \fIEIO\fR is set if the end of the
+file is reached and not less than \fIlen\fR bytes have been read.
+
+.TAG dyndb_seek
+.subsection dyndb_seek
+.func int32 dyndb_seek "(int fd,uint32 pos);"
+.endfunc
+\fBdyndb_seek\fR moves the file pointer \fIfd\fR to position pos.
+It returns -1 in case of error or \fIpos\fR otherwise.
+
+.TAG dyndb_seekend
+.subsection dyndb_seekend
+.func int32 dyndb_seekend "(int fd);"
+.endfunc
+\fBdyndb_seek\fR advances the file pointer \fIfd\fR to the end
+of the file, returning -1 in case of error or the new position.
+
+.TAG dyndb_todisk
+.subsection dyndb_todisk
+.func void dyndb_todisk "(unsigned char *buf, uint32 num);"
+.endfunc
+This function converts the unsigned 32 bit integer \fInum\fR to the 
+little endian character array \fIbuf\fR.
+
+.TAG dyndb_walkstart
+.subsection dyndb_walkstart
+.func int dyndb_walkstart "(struct dyndb *dy);"
+.endfunc
+A call to this function resets the start of \fIdy\fR so that a
+later call to 
+.intlink dyndb_walknext
+will find the first record in the database.
+.paragraph
+The function returns -1 in case of error and zero if successful.
+
+.TAG dyndb_walknext
+.subsection dyndb_walknext
+.func int dyndb_walknext "(struct dyndb *dy);"
+.endfunc
+\fBdyndb_walknext\fR provides a way to read all elements of a table.
+It returns -1 on error, 0 if no further elements exists and 1 if
+an element is found.
+.paragraph
+If an element is found then key and data may be read, in that
+order, from dy->fd.
+.intlink dyndb_keylen 
+returns to length of the key, and
+.intlink dyndb_datalen 
+returns the length of the data. In case you need to rewind the
+file descriptor to the old position then 
+.intlink dyndb_keypos 
+returns the position of the key and
+.intlink dyndb_datapos 
+returns the position of the data (key position + key length).
+.paragraph
+\fBdyndb_walknext\fR finds every record in the database at least once. It 
+finds every record exactly once if noone else is writing to the
+database at that moment, and may find records more than once if
+a table split happens during the walk through the table.
+.paragraph
+This example dumps all keys to the standard output:
+.paragraph
+.nf
+.HTML <pre>
+   struct dyndb dy;
+   if (-1==dyndb_init(&dy,0)) error();
+   if (-1==dyndb_walkstart(&dy)) error();
+   while (1) {
+      int r;
+      uint32 l;
+      r=dyndb_walknext(&dy);
+      if (-1==r)
+         error();
+      if (!r) 
+         break; /* no further records */
+
+      /* read and print the key */
+      for (l=dyndb_keylen(&dy); l ; ) {
+         char buf[128];
+         int32 got;
+		 got=dyndb_read(dy.fd,buf, l > sizeof(buf) ? sizeof(buf) : l);
+		 if (-1==got) 
+			 error();
+		 write(1,buf,got);
+		 l-=got;
+	  }
+	  write(1,"\n",1);
+
+	  /* could do the same for the data, using dyndb_datalen() */
+   }
+.HTML </pre>
+.fi
+
+.TAG dyndb_write
+.subsection dyndb_write
+.func int dyndb_write "(int fd, const char *buf, uint32 len);"
+.endfunc
+This functions writes \fIlen\fR bytes from \fIbuf\fR to file
+descriptor \fIfd\fR, restarting if interrupted. It returns -1
+in case of error and \fIlen\fR otherwise.
+
+.TAG limitations
+.section "Limitations"
+.list
+.entry "1."
+the database size is limited to 31 bits (2 gigabytes).
+.entry "2."
+key and data length are limited to 31 bits, too.
+.entry "3."
+hash, key length, data length and pointers are stored in
+little endian byte order.
+.entry "4."
+although deletions of elements are possible there is no way
+to reclaim the disk space of the records: deleted data is
+unavailable, not freed.
+.entry "5."
+dyndb is limited to one writing process at any time. There may be many
+readers at any time.
+.entry "6."
+although it's fine to share a file description between threads
+each file descriptor must not be be used for more than one operation
+at any given time. That means: be careful in multithreaded applications
+or use \fBdup(2)\fR.
+.entry "7."
+Be careful when using buffered libraries I/O like \fI<stdio.h>\fR
+or avoid them.
+.endlist
+.section Author
+Uwe Ohse, uwe@ohse.de
+.section "See also"
+.manlink dyndb_intro.html dyndb_intro(7) ,
+.manlink http://cr.yp.to/cdb.html cdb(3) .
+.HTML <!--
+.paragraph
+The homepage may be more up-to-date, see
+.br
+http://www.ohse.de/uwe/dyndb.html.
+.HTML -->
